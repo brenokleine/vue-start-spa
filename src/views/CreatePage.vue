@@ -23,12 +23,6 @@
                         </label>
                         <input type="text" class="form-control" v-model="linkText"/>
                     </div>
-                    <div class="mb-3">
-                        <label for="" class="form-label">
-                            Link URL
-                        </label>
-                        <input type="text" class="form-control" v-model="linkUrl"/>
-                    </div>
                     <div class="row mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" v-model="published">
@@ -48,55 +42,51 @@
     </div>
 </template>
 
-<script>
-    export default{
-        computed: {
-            isFormInvalid(){
-                return !this.pageTitle || !this.content || !this.linkText || !this.linkUrl;
-            }
-        },
-        data(){
-            return {
-                pageTitle: '',
-                content: '',
-                linkText: '',
-                linkUrl: '',
-                published: false
-            }
-        },
-        methods: {
-            submitForm(){
-                if(!this.pageTitle || !this.content || !this.linkText || !this.linkUrl){
-                    alert('Please fill out all fields');
-                    return;
-                }
+<script setup>
+import {ref, inject, computed, watch} from 'vue';
+import { useRouter } from 'vue-router';
 
-                this.$emit('pageCreated', {
-                    pageTitle: this.pageTitle,
-                    content: this.content,
-                    link: {
-                        text: this.linkText,
-                        url: this.linkUrl
-                    },
-                    published: this.published
-                })
+const router = useRouter();
 
-                this.clearForm();
-            },
-            clearForm(){
-                this.pageTitle = '';
-                this.content = '';
-                this.linkText = '';
-                this.linkUrl = '';
-                this.published = false;
-            }
-        },
-        watch: {
-            pageTitle(newTitle, oldTitle){
-                if(this.linkText === oldTitle){
-                    this.linkText = newTitle;
-                }
-            }
-        }
+const bus = inject('$bus');
+const pages = inject('$pages');
+
+let pageTitle = ref('');
+let content = ref('');
+let linkText = ref('');
+let published = ref(true);
+//refs are objects with this structure: {value: 'some value'}
+
+function submitForm(){
+    if (!pageTitle || !content || !linkText) {
+        alert('Please fill out all fields');
+        return;
     }
+
+    let newPage = {
+        pageTitle: pageTitle.value,
+        content: content.value,
+        link: {
+            text: linkText.value,
+        },
+        published: published.value,
+    }
+
+    pages.addPage(newPage)
+
+    bus.$emit('page-created', newPage)
+
+    router.push(`/pages`)
+}
+
+const isFormInvalid = computed(() => {
+    return !pageTitle || !content || !linkText;
+})
+
+//thing to be watched has to be reactive (ref or reactive)
+watch(pageTitle, (newTitle, oldTitle) => {
+    if (linkText.value === oldTitle) {
+        linkText.value = newTitle;
+    }
+})
 </script>

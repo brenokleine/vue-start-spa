@@ -12,12 +12,12 @@
                 
                 <li>
                     <router-link
-                        to="/create"
+                        to="/pages"
                         class="nav-link"
                         aria-current="page"
                         active-class="active"
                     >
-                        Create
+                        Pages
                     </router-link>
                 </li>
             </ul>
@@ -38,6 +38,7 @@ export default {
             pages: []
         }
     },
+    inject: ['$pages', '$bus'],
     components: {
         NavbarLink
     },
@@ -50,6 +51,18 @@ export default {
         this.getThemeSetting();
 
         this.pages = this.$pages.getAllPages();
+
+        this.$bus.$on('page-updated', () => {
+            this.pages = [...this.$pages.getAllPages()];
+        })
+
+        this.$bus.$on('page-created', () => {
+            this.pages = [...this.$pages.getAllPages()];
+        })
+
+        this.$bus.$on('page-deleted', () => {
+            this.pages = [...this.$pages.getAllPages()];
+        })
     },
     methods: {
         changeTheme(){

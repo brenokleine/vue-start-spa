@@ -11,5 +11,23 @@ export default {
     getSinglePage(index){
         return pagesStore[index];
     },
+
+    editPage(index, page){
+        pagesStore[index] = page;
+
+        localStorage.setItem(pagesKey, JSON.stringify(pagesStore));
+    },
+
+    addPage(page){
+        pagesStore.push(page);
+
+        localStorage.setItem(pagesKey, JSON.stringify(pagesStore));
+    },
+
+    removePage(index){
+        pagesStore.splice(index, 1);
+
+        localStorage.setItem(pagesKey, JSON.stringify(pagesStore));
+    },
     
 }
